@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"log"
+	"os"
 )
 
 type Server struct {
@@ -15,7 +16,7 @@ type Server struct {
 
 func CreateServer() Server {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     os.Getenv("REDIS_CONTAINER"),
 		Password: "",
 		DB:       0,
 	})
@@ -26,5 +27,5 @@ func CreateServer() Server {
 func (serv *Server) Start() {
 	app := fiber.New()
 	app.Get("/json/:group?", serv.hackerHandlers.Get)
-	log.Fatal(app.Listen(":8010"))
+	log.Fatal(app.Listen(os.Getenv("LISTEN_PORT")))
 }
