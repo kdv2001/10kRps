@@ -15,8 +15,12 @@ type Server struct {
 }
 
 func CreateServer() Server {
+	redisAddress := os.Getenv("REDIS_CONTAINER")
+	if len(redisAddress) == 0 {
+		redisAddress = "localHost:6379"
+	}
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_CONTAINER"),
+		Addr:     redisAddress,
 		Password: "",
 		DB:       0,
 	})
@@ -27,5 +31,9 @@ func CreateServer() Server {
 func (serv *Server) Start() {
 	app := fiber.New()
 	app.Get("/json/:group?", serv.hackerHandlers.Get)
-	log.Fatal(app.Listen(os.Getenv("LISTEN_PORT")))
+	serverPort := os.Getenv("LISTEN_PORT")
+	if len(serverPort) == 0 {
+		serverPort = ":8010"
+	}
+	log.Fatal(app.Listen(serverPort))
 }
